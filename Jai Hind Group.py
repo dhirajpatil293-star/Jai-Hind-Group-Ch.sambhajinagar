@@ -1,3 +1,4 @@
+import base64
 import io
 import os
 import pandas as pd
@@ -6,7 +7,9 @@ import streamlit as st
 
 # Page Configuration
 st.set_page_config(
-    page_title="Jay Hind Group - Shree Ganesha Utsav Mandal", page_icon="🌺", layout="wide"
+    page_title="Jay Hind Group - Shree Ganesha Utsav Mandal",
+    page_icon="🌺",
+    layout="wide",
 )
 
 # Custom Festival Theme Styling
@@ -67,22 +70,50 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
+# Helper function to find logo
+def get_logo_file():
+    possible_names = [
+        "logo.png",
+        "logo.jpg",
+        "logo.jpeg",
+        "Image (2).jpg",
+        "Image (2).png",
+    ]
+    for name in possible_names:
+        if os.path.exists(name):
+            return name
+    return None
+
+
+logo_path = get_logo_file()
+
 # TOP HEADER LAYOUT WITH LOGO ON TOP-LEFT
 col_logo, col_header = st.columns([1, 4])
 
 with col_logo:
-    if os.path.exists("logo.png"):
-        st.image("logo.png", width=160)
-    elif os.path.exists("logo.jpg"):
-        st.image("logo.jpg", width=160)
+    if logo_path:
+        st.image(logo_path, width=160)
     else:
         st.image("https://img.icons8.com/color/96/ganesha.png", width=100)
 
 with col_header:
-    st.markdown('<div class="group-title">🚩 JAY HIND GROUP 🚩</div>', unsafe_allow_html=True)
-    st.markdown('<div class="main-title">🌺 ॐ श्री गणेशाय नमः 🌺</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">Shree Ganesha Utsav Mandal Portal</div>', unsafe_allow_html=True)
-    st.markdown('<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="group-title">🚩 JAY HIND GROUP 🚩</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="main-title">🌺 ॐ श्री गणेशाय नमः 🌺</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="sub-title">Shree Ganesha Utsav Mandal Portal</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>',
+        unsafe_allow_html=True,
+    )
 
 st.divider()
 
@@ -90,24 +121,34 @@ st.divider()
 if "members" not in st.session_state:
     st.session_state.members = [
         {"Name": "Dhiraj Patil", "Role": "President", "Contact": "9876543210"},
-        {"Name": "Rahul Sharma", "Role": "Vice President", "Contact": "9876543211"},
+        {
+            "Name": "Rahul Sharma",
+            "Role": "Vice President",
+            "Contact": "9876543211",
+        },
         {"Name": "Amit Deshmukh", "Role": "Secretary", "Contact": "9876543212"},
     ]
 
 if "awards" not in st.session_state:
     st.session_state.awards = [
-        {"Year": "2024", "Award Name": "Best Eco-Friendly Ganpati", "Category": "City Level 1st Prize"},
-        {"Year": "2023", "Award Name": "Best Social Service Mandal", "Category": "Blood Donation & Relief Campaign"},
+        {
+            "Year": "2024",
+            "Award Name": "Best Eco-Friendly Ganpati",
+            "Category": "City Level 1st Prize",
+        },
+        {
+            "Year": "2023",
+            "Award Name": "Best Social Service Mandal",
+            "Category": "Blood Donation & Relief Campaign",
+        },
     ]
 
 if "photos" not in st.session_state:
     st.session_state.photos = []
 
 # Sidebar Navigation
-if os.path.exists("logo.png"):
-    st.sidebar.image("logo.png", width=120)
-elif os.path.exists("logo.jpg"):
-    st.sidebar.image("logo.jpg", width=120)
+if logo_path:
+    st.sidebar.image(logo_path, width=120)
 
 st.sidebar.title("🚩 Jay Hind Group")
 st.sidebar.write("📍 **Address:** N-12 Hudco Tv centre Ch.sambhajingar")
@@ -119,7 +160,7 @@ page = st.sidebar.radio(
         "🏠 Home & Bappa Photos",
         "👥 Mandal Committee Members",
         "🏆 Awards & Achievements",
-        "⚙️ Admin Dashboard (Add Data)",
+        "⚙️ Admin Dashboard (Add/Delete Data)",
     ],
 )
 
@@ -169,63 +210,113 @@ elif page == "🏆 Awards & Achievements":
     else:
         st.info("No awards recorded yet.")
 
-# --- PAGE 4: ADMIN DASHBOARD ---
-elif page == "⚙️ Admin Dashboard (Add Data)":
-    st.header("⚙️ Add New Data to Mandal Portal")
+# --- PAGE 4: ADMIN DASHBOARD (ADD & DELETE) ---
+elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
+    st.header("⚙️ Manage Mandal Data")
 
     tab1, tab2, tab3 = st.tabs(
-        ["➕ Add Committee Member", "➕ Add Award", "📸 Upload Bappa Photo"]
+        ["👥 Manage Members", "🏆 Manage Awards", "📸 Upload Bappa Photo"]
     )
 
-    # 1. Add Member
+    # 1. Manage Members (Add + Delete)
     with tab1:
-        st.subheader("Add Mandal Member")
-        m_name = st.text_input("Member Full Name")
-        m_role = st.selectbox(
-            "Role / Designation",
-            [
-                "President",
-                "Vice President",
-                "Secretary",
-                "Treasurer",
-                "Committee Member",
-                "Volunteer",
-            ],
-        )
-        m_contact = st.text_input("Contact Number (Optional)")
+        col_add, col_del = st.columns(2)
 
-        if st.button("Save Member"):
-            if m_name:
-                st.session_state.members.append(
-                    {"Name": m_name, "Role": m_role, "Contact": m_contact}
+        with col_add:
+            st.subheader("➕ Add Member")
+            m_name = st.text_input("Member Full Name")
+            m_role = st.selectbox(
+                "Role / Designation",
+                [
+                    "President",
+                    "Vice President",
+                    "Secretary",
+                    "Treasurer",
+                    "Committee Member",
+                    "Volunteer",
+                ],
+            )
+            m_contact = st.text_input("Contact Number (Optional)")
+
+            if st.button("Save Member"):
+                if m_name:
+                    st.session_state.members.append(
+                        {"Name": m_name, "Role": m_role, "Contact": m_contact}
+                    )
+                    st.success(f"Member '{m_name}' added successfully!")
+                    st.rerun()
+                else:
+                    st.error("Please enter the member's name.")
+
+        with col_del:
+            st.subheader("🗑️ Delete Member")
+            if st.session_state.members:
+                member_names = [m["Name"] for m in st.session_state.members]
+                selected_member = st.selectbox(
+                    "Select Member to Delete", member_names
                 )
-                st.success(f"Member '{m_name}' added successfully!")
-            else:
-                st.error("Please enter the member's name.")
 
-    # 2. Add Award
+                if st.button("Delete Selected Member"):
+                    st.session_state.members = [
+                        m
+                        for m in st.session_state.members
+                        if m["Name"] != selected_member
+                    ]
+                    st.success(
+                        f"Member '{selected_member}' deleted successfully!"
+                    )
+                    st.rerun()
+            else:
+                st.info("No members available to delete.")
+
+    # 2. Add/Delete Award
     with tab2:
-        st.subheader("Add Award or Achievement")
-        a_year = st.text_input("Year", value="2025")
-        a_title = st.text_input("Award Title / Name")
-        a_category = st.text_input("Category / Details")
+        col_a_add, col_a_del = st.columns(2)
 
-        if st.button("Save Award"):
-            if a_title:
-                st.session_state.awards.append(
-                    {
-                        "Year": a_year,
-                        "Award Name": a_title,
-                        "Category": a_category,
-                    }
+        with col_a_add:
+            st.subheader("➕ Add Award")
+            a_year = st.text_input("Year", value="2025")
+            a_title = st.text_input("Award Title / Name")
+            a_category = st.text_input("Category / Details")
+
+            if st.button("Save Award"):
+                if a_title:
+                    st.session_state.awards.append(
+                        {
+                            "Year": a_year,
+                            "Award Name": a_title,
+                            "Category": a_category,
+                        }
+                    )
+                    st.success(f"Award '{a_title}' recorded successfully!")
+                    st.rerun()
+                else:
+                    st.error("Please enter the award title.")
+
+        with col_a_del:
+            st.subheader("🗑️ Delete Award")
+            if st.session_state.awards:
+                award_titles = [a["Award Name"] for a in st.session_state.awards]
+                selected_award = st.selectbox(
+                    "Select Award to Delete", award_titles
                 )
-                st.success(f"Award '{a_title}' recorded successfully!")
+
+                if st.button("Delete Selected Award"):
+                    st.session_state.awards = [
+                        a
+                        for a in st.session_state.awards
+                        if a["Award Name"] != selected_award
+                    ]
+                    st.success(
+                        f"Award '{selected_award}' deleted successfully!"
+                    )
+                    st.rerun()
             else:
-                st.error("Please enter the award title.")
+                st.info("No awards available to delete.")
 
     # 3. Upload Photo
     with tab3:
-        st.subheader("Upload Ganpati Bappa Photo")
+        st.subheader("📸 Upload Ganpati Bappa Photo")
         uploaded_img = st.file_uploader(
             "Choose an image (JPG, PNG, JPEG)", type=["jpg", "png", "jpeg"]
         )
