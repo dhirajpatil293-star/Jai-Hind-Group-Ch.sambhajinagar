@@ -1,6 +1,6 @@
-import base64
 import io
 import os
+from pathlib import Path
 import pandas as pd
 from PIL import Image
 import streamlit as st
@@ -70,32 +70,29 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Absolute Path Resolver for Image File
+BASE_DIR = Path(__file__).resolve().parent
 
-# Helper function to find logo
-def get_logo_file():
-    possible_names = [
-        "logo.png",
-        "logo.jpg",
-        "logo.jpeg",
-        "Image (2).jpg",
-        "Image (2).png",
-    ]
-    for name in possible_names:
-        if os.path.exists(name):
-            return name
+
+def find_logo():
+    extensions = ["logo.png", "logo.jpg", "logo.jpeg", "logo.PNG", "logo.JPG"]
+    for ext in extensions:
+        file_path = BASE_DIR / ext
+        if file_path.exists():
+            return file_path
     return None
 
 
-logo_path = get_logo_file()
+logo_file = find_logo()
 
 # TOP HEADER LAYOUT WITH LOGO ON TOP-LEFT
 col_logo, col_header = st.columns([1, 4])
 
 with col_logo:
-    if logo_path:
-        st.image(logo_path, width=160)
+    if logo_file:
+        st.image(str(logo_file), width=160)
     else:
-        st.image("https://img.icons8.com/color/96/ganesha.png", width=100)
+        st.warning("⚠️ Upload logo.png to GitHub")
 
 with col_header:
     st.markdown(
@@ -143,12 +140,12 @@ if "awards" not in st.session_state:
         },
     ]
 
-if "photos" not in st.session_state:
-    st.session_state.photos = []
+if "media" not in st.session_state:
+    st.session_state.media = []
 
 # Sidebar Navigation
-if logo_path:
-    st.sidebar.image(logo_path, width=120)
+if logo_file:
+    st.sidebar.image(str(logo_file), width=130)
 
 st.sidebar.title("🚩 Jay Hind Group")
 st.sidebar.write("📍 **Address:** N-12 Hudco Tv centre Ch.sambhajingar")
@@ -157,7 +154,7 @@ st.sidebar.divider()
 page = st.sidebar.radio(
     "Go to:",
     [
-        "🏠 Home & Bappa Photos",
+        "🏠 Gallery (Photos & Videos)",
         "👥 Mandal Committee Members",
         "🏆 Awards & Achievements",
         "⚙️ Admin Dashboard (Add/Delete Data)",
@@ -167,25 +164,29 @@ page = st.sidebar.radio(
 st.sidebar.divider()
 st.sidebar.caption("💻 Developed by **Dhiraj Patil**")
 
-# --- PAGE 1: PHOTOS & GALLERY ---
-if page == "🏠 Home & Bappa Photos":
-    st.header("📸 Shree Ganpati Bappa Photo Gallery")
+# --- PAGE 1: PHOTOS & VIDEOS GALLERY ---
+if page == "🏠 Gallery (Photos & Videos)":
+    st.header("🎬 Shree Ganpati Bappa Media Gallery")
     st.write(
-        "Welcome to the Jay Hind Group official Mandal portal! View our Ganesha celebrations and darshan photos."
+        "Welcome to the Jay Hind Group official Mandal portal! View our Ganesha celebrations, darshan photos, and event videos."
     )
 
-    if st.session_state.photos:
-        cols = st.columns(3)
-        for idx, photo in enumerate(st.session_state.photos):
-            with cols[idx % 3]:
-                st.image(
-                    photo["image"],
-                    caption=photo["caption"],
-                    use_column_width=True,
-                )
+    if st.session_state.media:
+        cols = st.columns(2)
+        for idx, item in enumerate(st.session_state.media):
+            with cols[idx % 2]:
+                if item["type"] == "photo":
+                    st.image(
+                        item["file"],
+                        caption=item["caption"],
+                        use_container_width=True,
+                    )
+                elif item["type"] == "video":
+                    st.video(item["file"])
+                    st.caption(item["caption"])
     else:
         st.info(
-            "No photos uploaded yet. Go to the **Admin Dashboard** tab in the sidebar to upload Bappa photos!"
+            "No media uploaded yet. Go to the **Admin Dashboard** tab in the sidebar to upload Bappa photos and videos!"
         )
 
 # --- PAGE 2: COMMITTEE MEMBERS ---
@@ -215,10 +216,10 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
     st.header("⚙️ Manage Mandal Data")
 
     tab1, tab2, tab3 = st.tabs(
-        ["👥 Manage Members", "🏆 Manage Awards", "📸 Upload Bappa Photo"]
+        ["👥 Manage Members", "🏆 Manage Awards", "🎬 Upload Media (Photos/Videos)"]
     )
 
-    # 1. Manage Members (Add + Delete)
+    # 1. Manage Members
     with tab1:
         col_add, col_del = st.columns(2)
 
@@ -269,7 +270,7 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
             else:
                 st.info("No members available to delete.")
 
-    # 2. Add/Delete Award
+    # 2. Manage Awards
     with tab2:
         col_a_add, col_a_del = st.columns(2)
 
@@ -314,27 +315,43 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
             else:
                 st.info("No awards available to delete.")
 
-    # 3. Upload Photo
+    # 3. Upload Photo / Video
     with tab3:
-        st.subheader("📸 Upload Ganpati Bappa Photo")
-        uploaded_img = st.file_uploader(
-            "Choose an image (JPG, PNG, JPEG)", type=["jpg", "png", "jpeg"]
-        )
-        p_caption = st.text_input(
-            "Photo Caption / Year", value="Ganpati Bappa Morya!"
-        )
+        st.subheader("📸 Upload Photo or 🎥 Video")
+        media_type = st.radio("Select Media Type:", ["Photo", "Video"], horizontal=True)
 
-        if st.button("Upload Photo"):
-            if uploaded_img is not None:
-                img = Image.open(uploaded_img)
-                st.session_state.photos.append(
-                    {"image": img, "caption": p_caption}
-                )
-                st.success(
-                    "Photo uploaded successfully! Check the 'Home & Bappa Photos' tab."
-                )
-            else:
-                st.error("Please select an image file first.")
+        if media_type == "Photo":
+            uploaded_file = st.file_uploader(
+                "Choose an image file", type=["jpg", "jpeg", "png"]
+            )
+            caption = st.text_input("Photo Caption", value="Ganpati Bappa Morya!")
+            
+            if st.button("Upload Photo"):
+                if uploaded_file is not None:
+                    img = Image.open(uploaded_file)
+                    st.session_state.media.append(
+                        {"type": "photo", "file": img, "caption": caption}
+                    )
+                    st.success("Photo uploaded successfully!")
+                    st.rerun()
+                else:
+                    st.error("Please select an image file first.")
+
+        elif media_type == "Video":
+            uploaded_file = st.file_uploader(
+                "Choose a video file", type=["mp4", "mov", "avi", "mkv"]
+            )
+            caption = st.text_input("Video Caption", value="Aarti / Celebration Video")
+
+            if st.button("Upload Video"):
+                if uploaded_file is not None:
+                    st.session_state.media.append(
+                        {"type": "video", "file": uploaded_file, "caption": caption}
+                    )
+                    st.success("Video uploaded successfully!")
+                    st.rerun()
+                else:
+                    st.error("Please select a video file first.")
 
 # Developer Branding Footer
 st.markdown(
