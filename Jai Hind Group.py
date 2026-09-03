@@ -6,13 +6,21 @@ import streamlit as st
 
 # Page Configuration
 st.set_page_config(
-    page_title="Shree Ganesha Utsav Mandal", page_icon="🌺", layout="wide"
+    page_title="Jay Hind Group - Shree Ganesha Utsav Mandal", page_icon="🌺", layout="wide"
 )
 
 # Custom Festival Theme Styling (Orange & Red)
 st.markdown(
     """
     <style>
+    .group-title {
+        text-align: center;
+        color: #FF6F00;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0px;
+        letter-spacing: 1px;
+    }
     .main-title {
         text-align: center;
         color: #D32F2F;
@@ -56,7 +64,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# App Title & Header
+# App Title & Header with Jay Hind Group
+st.markdown(
+    '<div class="group-title">🚩 JAY HIND GROUP 🚩</div>',
+    unsafe_allow_html=True,
+)
 st.markdown(
     '<div class="main-title">🌺 ॐ श्री गणेशाय नमः 🌺</div>',
     unsafe_allow_html=True,
@@ -97,7 +109,7 @@ if "photos" not in st.session_state:
 
 # Sidebar Navigation
 st.sidebar.image("https://img.icons8.com/color/96/ganesha.png", width=80)
-st.sidebar.title("🚩 Navigation")
+st.sidebar.title("🚩 Jay Hind Group")
 page = st.sidebar.radio(
     "Go to:",
     [
@@ -115,7 +127,7 @@ st.sidebar.caption("💻 Developed by **Dhiraj Patil**")
 if page == "🏠 Home & Bappa Photos":
     st.header("📸 Shree Ganpati Bappa Photo Gallery")
     st.write(
-        "Welcome to our Mandal portal! View our Ganesha celebrations and darshan photos."
+        "Welcome to the Jay Hind Group official Mandal portal! View our Ganesha celebrations and darshan photos."
     )
 
     if st.session_state.photos:
@@ -134,7 +146,7 @@ if page == "🏠 Home & Bappa Photos":
 
 # --- PAGE 2: COMMITTEE MEMBERS ---
 elif page == "👥 Mandal Committee Members":
-    st.header("👥 Our Mandal Members & Committee")
+    st.header("👥 Jay Hind Group Members & Committee")
     st.write("Meet the dedicated team working for our Ganesha Utsav Mandal.")
 
     if st.session_state.members:
@@ -145,7 +157,7 @@ elif page == "👥 Mandal Committee Members":
 
 # --- PAGE 3: AWARDS ---
 elif page == "🏆 Awards & Achievements":
-    st.header("🏆 Mandal Awards & Recognition")
+    st.header("🏆 Jay Hind Group Awards & Recognition")
     st.write("Honors and awards achieved by our Mandal over the years.")
 
     if st.session_state.awards:
