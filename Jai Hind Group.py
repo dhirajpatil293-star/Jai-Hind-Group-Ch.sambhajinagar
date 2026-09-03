@@ -9,12 +9,11 @@ st.set_page_config(
     page_title="Jay Hind Group - Shree Ganesha Utsav Mandal", page_icon="🌺", layout="wide"
 )
 
-# Custom Festival Theme Styling (Orange & Red)
+# Custom Festival Theme Styling
 st.markdown(
     """
     <style>
     .group-title {
-        text-align: center;
         color: #FF6F00;
         font-size: 1.8rem;
         font-weight: 700;
@@ -22,25 +21,22 @@ st.markdown(
         letter-spacing: 1px;
     }
     .main-title {
-        text-align: center;
         color: #D32F2F;
-        font-size: 2.8rem;
+        font-size: 2.5rem;
         font-weight: 800;
         margin-bottom: 0px;
     }
     .sub-title {
-        text-align: center;
         color: #E65100;
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         font-weight: 600;
         margin-bottom: 5px;
     }
     .address-text {
-        text-align: center;
         color: #888;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 500;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
     .stButton>button {
         background-color: #E65100;
@@ -71,55 +67,48 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# App Title & Header with Jay Hind Group and Address
-st.markdown(
-    '<div class="group-title">🚩 JAY HIND GROUP 🚩</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="main-title">🌺 ॐ श्री गणेशाय नमः 🌺</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="sub-title">Shree Ganesha Utsav Mandal Portal</div>',
-    unsafe_allow_html=True,
-)
-st.markdown(
-    '<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>',
-    unsafe_allow_html=True,
-)
+# TOP HEADER LAYOUT WITH LOGO ON TOP-LEFT
+col_logo, col_header = st.columns([1, 4])
+
+with col_logo:
+    if os.path.exists("logo.png"):
+        st.image("logo.png", width=160)
+    elif os.path.exists("logo.jpg"):
+        st.image("logo.jpg", width=160)
+    else:
+        st.image("https://img.icons8.com/color/96/ganesha.png", width=100)
+
+with col_header:
+    st.markdown('<div class="group-title">🚩 JAY HIND GROUP 🚩</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-title">🌺 ॐ श्री गणेशाय नमः 🌺</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-title">Shree Ganesha Utsav Mandal Portal</div>', unsafe_allow_html=True)
+    st.markdown('<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>', unsafe_allow_html=True)
+
+st.divider()
 
 # Initialize Session State Data Storage
 if "members" not in st.session_state:
     st.session_state.members = [
         {"Name": "Dhiraj Patil", "Role": "President", "Contact": "9876543210"},
-        {
-            "Name": "Rahul Sharma",
-            "Role": "Vice President",
-            "Contact": "9876543211",
-        },
+        {"Name": "Rahul Sharma", "Role": "Vice President", "Contact": "9876543211"},
         {"Name": "Amit Deshmukh", "Role": "Secretary", "Contact": "9876543212"},
     ]
 
 if "awards" not in st.session_state:
     st.session_state.awards = [
-        {
-            "Year": "2024",
-            "Award Name": "Best Eco-Friendly Ganpati",
-            "Category": "City Level 1st Prize",
-        },
-        {
-            "Year": "2023",
-            "Award Name": "Best Social Service Mandal",
-            "Category": "Blood Donation & Relief Campaign",
-        },
+        {"Year": "2024", "Award Name": "Best Eco-Friendly Ganpati", "Category": "City Level 1st Prize"},
+        {"Year": "2023", "Award Name": "Best Social Service Mandal", "Category": "Blood Donation & Relief Campaign"},
     ]
 
 if "photos" not in st.session_state:
     st.session_state.photos = []
 
 # Sidebar Navigation
-st.sidebar.image("https://img.icons8.com/color/96/ganesha.png", width=80)
+if os.path.exists("logo.png"):
+    st.sidebar.image("logo.png", width=120)
+elif os.path.exists("logo.jpg"):
+    st.sidebar.image("logo.jpg", width=120)
+
 st.sidebar.title("🚩 Jay Hind Group")
 st.sidebar.write("📍 **Address:** N-12 Hudco Tv centre Ch.sambhajingar")
 st.sidebar.divider()
