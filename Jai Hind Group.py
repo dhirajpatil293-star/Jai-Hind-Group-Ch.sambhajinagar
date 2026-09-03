@@ -33,6 +33,13 @@ st.markdown(
         color: #E65100;
         font-size: 1.3rem;
         font-weight: 600;
+        margin-bottom: 5px;
+    }
+    .address-text {
+        text-align: center;
+        color: #888;
+        font-size: 1rem;
+        font-weight: 500;
         margin-bottom: 25px;
     }
     .stButton>button {
@@ -64,7 +71,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# App Title & Header with Jay Hind Group
+# App Title & Header with Jay Hind Group and Address
 st.markdown(
     '<div class="group-title">🚩 JAY HIND GROUP 🚩</div>',
     unsafe_allow_html=True,
@@ -75,6 +82,10 @@ st.markdown(
 )
 st.markdown(
     '<div class="sub-title">Shree Ganesha Utsav Mandal Portal</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    '<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>',
     unsafe_allow_html=True,
 )
 
@@ -110,6 +121,9 @@ if "photos" not in st.session_state:
 # Sidebar Navigation
 st.sidebar.image("https://img.icons8.com/color/96/ganesha.png", width=80)
 st.sidebar.title("🚩 Jay Hind Group")
+st.sidebar.write("📍 **Address:** N-12 Hudco Tv centre Ch.sambhajingar")
+st.sidebar.divider()
+
 page = st.sidebar.radio(
     "Go to:",
     [
