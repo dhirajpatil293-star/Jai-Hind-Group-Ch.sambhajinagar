@@ -83,7 +83,7 @@ AWARDS_FILE = DATA_DIR / "awards.json"
 MEDIA_META_FILE = DATA_DIR / "media.json"
 
 
-# JSON Helper Functions to Save/Load Data
+# JSON Helper Functions
 def load_data(file_path, default_data):
     if file_path.exists():
         with open(file_path, "r", encoding="utf-8") as f:
@@ -157,7 +157,7 @@ default_awards = [
     },
 ]
 
-# Load Persistent Data directly into Session State
+# Load Persistent Data
 if "members" not in st.session_state:
     st.session_state.members = load_data(MEMBERS_FILE, default_members)
 
@@ -198,18 +198,23 @@ if page == "🏠 Gallery (Photos & Videos)":
     if st.session_state.media:
         cols = st.columns(2)
         for idx, item in enumerate(st.session_state.media):
-            media_path = MEDIA_DIR / item["filename"]
             with cols[idx % 2]:
-                if media_path.exists():
-                    if item["type"] == "photo":
+                if item["type"] == "photo":
+                    media_path = MEDIA_DIR / item["filename"]
+                    if media_path.exists():
                         st.image(
                             str(media_path),
                             caption=item["caption"],
                             use_container_width=True,
                         )
-                    elif item["type"] == "video":
+                elif item["type"] == "video_file":
+                    media_path = MEDIA_DIR / item["filename"]
+                    if media_path.exists():
                         st.video(str(media_path))
                         st.caption(item["caption"])
+                elif item["type"] == "video_url":
+                    st.video(item["url"])
+                    st.caption(item["caption"])
     else:
         st.info(
             "No media uploaded yet. Go to the **Admin Dashboard** tab in the sidebar to upload photos and videos!"
@@ -348,9 +353,13 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
     # 3. Upload Photo / Video
     with tab3:
         st.subheader("📸 Upload Photo or 🎥 Video")
-        media_type = st.radio("Select Media Type:", ["Photo", "Video"], horizontal=True)
+        media_type = st.radio(
+            "Select Media Option:",
+            ["Photo File", "Video File Upload", "YouTube / Video Link"],
+            horizontal=True,
+        )
 
-        if media_type == "Photo":
+        if media_type == "Photo File":
             uploaded_file = st.file_uploader(
                 "Choose an image file", type=["jpg", "jpeg", "png"]
             )
@@ -372,18 +381,18 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
                         }
                     )
                     save_data(MEDIA_META_FILE, st.session_state.media)
-                    st.success("Photo uploaded and saved permanently!")
+                    st.success("Photo uploaded successfully!")
                     st.rerun()
                 else:
                     st.error("Please select an image file first.")
 
-        elif media_type == "Video":
+        elif media_type == "Video File Upload":
             uploaded_file = st.file_uploader(
-                "Choose a video file", type=["mp4", "mov", "avi", "mkv"]
+                "Choose a video file (MP4/MOV)", type=["mp4", "mov", "avi", "mkv"]
             )
             caption = st.text_input("Video Caption", value="Aarti / Celebration Video")
 
-            if st.button("Upload Video"):
+            if st.button("Upload Video File"):
                 if uploaded_file is not None:
                     file_name = uploaded_file.name
                     save_path = MEDIA_DIR / file_name
@@ -393,16 +402,34 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
 
                     st.session_state.media.append(
                         {
-                            "type": "video",
+                            "type": "video_file",
                             "filename": file_name,
                             "caption": caption,
                         }
                     )
                     save_data(MEDIA_META_FILE, st.session_state.media)
-                    st.success("Video uploaded and saved permanently!")
+                    st.success("Video uploaded successfully!")
                     st.rerun()
                 else:
                     st.error("Please select a video file first.")
+
+        elif media_type == "YouTube / Video Link":
+            v_url = st.text_input(
+                "Paste Video URL (YouTube Link / Direct MP4 URL)",
+                placeholder="https://www.youtube.com/watch?v=...",
+            )
+            caption = st.text_input("Video Caption", value="Mandal Event Video")
+
+            if st.button("Add Video Link"):
+                if v_url:
+                    st.session_state.media.append(
+                        {"type": "video_url", "url": v_url, "caption": caption}
+                    )
+                    save_data(MEDIA_META_FILE, st.session_state.media)
+                    st.success("Video link added successfully!")
+                    st.rerun()
+                else:
+                    st.error("Please enter a video URL.")
 
 # Developer Branding Footer
 st.markdown(
