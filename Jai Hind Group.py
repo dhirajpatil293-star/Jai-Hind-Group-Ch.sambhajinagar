@@ -18,13 +18,13 @@ st.set_page_config(
 ADMIN_PASSWORD = "jayhind2026"  # Change this to your preferred password
 # -----------------------------------------------------------------------------
 
-# Custom Festival Theme & Background Image Styling
+# Custom Festival Theme & Styling
 st.markdown(
     """
     <style>
     /* Main App Background Image */
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
                     url("https://images.unsplash.com/photo-1567157577867-05ccb1388e66?q=80&w=1920&auto=format&fit=crop");
         background-size: cover;
         background-position: center;
@@ -33,7 +33,7 @@ st.markdown(
 
     /* Sidebar Background Styling */
     section[data-testid="stSidebar"] {
-        background-color: rgba(15, 15, 15, 0.85) !important;
+        background-color: rgba(15, 15, 15, 0.9) !important;
         backdrop-filter: blur(5px);
     }
 
@@ -42,32 +42,41 @@ st.markdown(
         color: #FFFFFF !important;
     }
 
+    /* Attractive Header Card */
+    .header-card {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 20px;
+        border-radius: 15px;
+        border: 2px solid #FF9800;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        margin-bottom: 25px;
+    }
+
     .group-title {
         color: #FFB300 !important;
-        font-size: 1.8rem;
-        font-weight: 700;
+        font-size: 2rem;
+        font-weight: 800;
         margin-bottom: 0px;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         text-shadow: 2px 2px 4px #000000;
     }
     .main-title {
-        color: #FF5252 !important;
-        font-size: 2.5rem;
-        font-weight: 800;
+        color: #FF3D00 !important;
+        font-size: 2.8rem;
+        font-weight: 900;
         margin-bottom: 0px;
         text-shadow: 2px 2px 6px #000000;
     }
     .sub-title {
-        color: #FF9800 !important;
-        font-size: 1.2rem;
-        font-weight: 600;
+        color: #FFC107 !important;
+        font-size: 1.3rem;
+        font-weight: 700;
         margin-bottom: 5px;
     }
     .address-text {
         color: #E0E0E0 !important;
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 500;
-        margin-bottom: 20px;
     }
     .stButton>button {
         background-color: #E65100 !important;
@@ -136,7 +145,13 @@ def find_logo():
 
 logo_file = find_logo()
 
-# Header Section
+# --- ATTRACTIVE GANESHA BANNER ---
+# Full-width festival banner image at the top
+banner_url = "https://images.unsplash.com/photo-1662018868853-29a8a7ca2c5f?q=80&w=1600&auto=format&fit=crop"
+st.image(banner_url, use_container_width=True)
+
+# Header Card Section
+st.markdown('<div class="header-card">', unsafe_allow_html=True)
 col_logo, col_header = st.columns([1, 4])
 
 with col_logo:
@@ -162,6 +177,7 @@ with col_header:
         '<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>',
         unsafe_allow_html=True,
     )
+st.markdown("</div>", unsafe_allow_html=True)
 
 st.divider()
 
