@@ -18,38 +18,60 @@ st.set_page_config(
 ADMIN_PASSWORD = "jayhind2026"  # Change this to your preferred password
 # -----------------------------------------------------------------------------
 
-# Custom Festival Theme Styling
+# Custom Festival Theme & Background Image Styling
 st.markdown(
     """
     <style>
+    /* Main App Background Image */
+    .stApp {
+        background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
+                    url("https://images.unsplash.com/photo-1567157577867-05ccb1388e66?q=80&w=1920&auto=format&fit=crop");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    /* Sidebar Background Styling */
+    section[data-testid="stSidebar"] {
+        background-color: rgba(15, 15, 15, 0.85) !important;
+        backdrop-filter: blur(5px);
+    }
+
+    /* Text Colors for Dark Background */
+    h1, h2, h3, h4, p, label, .stMarkdown {
+        color: #FFFFFF !important;
+    }
+
     .group-title {
-        color: #FF6F00;
+        color: #FFB300 !important;
         font-size: 1.8rem;
         font-weight: 700;
         margin-bottom: 0px;
         letter-spacing: 1px;
+        text-shadow: 2px 2px 4px #000000;
     }
     .main-title {
-        color: #D32F2F;
+        color: #FF5252 !important;
         font-size: 2.5rem;
         font-weight: 800;
         margin-bottom: 0px;
+        text-shadow: 2px 2px 6px #000000;
     }
     .sub-title {
-        color: #E65100;
+        color: #FF9800 !important;
         font-size: 1.2rem;
         font-weight: 600;
         margin-bottom: 5px;
     }
     .address-text {
-        color: #888;
+        color: #E0E0E0 !important;
         font-size: 0.95rem;
         font-weight: 500;
         margin-bottom: 20px;
     }
     .stButton>button {
-        background-color: #E65100;
-        color: white;
+        background-color: #E65100 !important;
+        color: white !important;
         font-weight: bold;
         border-radius: 8px;
         border: none;
@@ -59,7 +81,7 @@ st.markdown(
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: #111;
+        background-color: rgba(0, 0, 0, 0.9);
         color: #ddd;
         text-align: center;
         padding: 8px 0;
@@ -251,11 +273,10 @@ elif page == "🏆 Awards & Achievements":
     else:
         st.info("No awards recorded yet.")
 
-# --- PAGE 4: ADMIN DASHBOARD (PASSWORD PROTECTED) ---
+# --- PAGE 4: ADMIN DASHBOARD (RESTRICTED) ---
 elif page == "🔒 Admin Dashboard (Restricted)":
     st.header("🔒 Admin Access Portal")
 
-    # If not logged in, ask for password
     if not st.session_state.is_admin_logged_in:
         st.subheader("🔑 Login Required")
         password_input = st.text_input("Enter Admin Password", type="password")
