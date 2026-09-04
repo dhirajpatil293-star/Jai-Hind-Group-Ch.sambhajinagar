@@ -44,11 +44,12 @@ st.markdown(
 
     /* Attractive Header Card */
     .header-card {
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.65);
         padding: 20px;
         border-radius: 15px;
         border: 2px solid #FF9800;
         box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        margin-top: 10px;
         margin-bottom: 25px;
     }
 
@@ -146,7 +147,6 @@ def find_logo():
 logo_file = find_logo()
 
 # --- ATTRACTIVE GANESHA BANNER ---
-# Full-width festival banner image at the top
 banner_url = "https://images.unsplash.com/photo-1662018868853-29a8a7ca2c5f?q=80&w=1600&auto=format&fit=crop"
 st.image(banner_url, use_container_width=True)
 
@@ -384,7 +384,7 @@ elif page == "🔒 Admin Dashboard (Restricted)":
 
             with col_a_add:
                 st.subheader("➕ Add Award")
-                a_year = st.text_input("Year", value="2025")
+                a_year = st.text_input("Year", value="2026")
                 a_title = st.text_input("Award Title / Name")
                 a_category = st.text_input("Category / Details")
 
