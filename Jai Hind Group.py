@@ -18,23 +18,32 @@ st.set_page_config(
 ADMIN_PASSWORD = "jayhind2026"  # Change this to your preferred password
 # -----------------------------------------------------------------------------
 
-# Custom Festival Theme & Styling
+# Custom Festival Theme & High-Visibility Ganesha Background
 st.markdown(
     """
     <style>
-    /* Main App Background Image */
+    /* Full Page Dark Aesthetic Background */
     .stApp {
-        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+        background-color: #0d0d0d;
+        background-image: radial-gradient(circle at center, #1a0f00 0%, #050505 100%);
+    }
+
+    /* Centered Screen Background Ganesha Overlay */
+    [data-testid="stMainBlockContainer"] {
+        background-image: linear-gradient(rgba(13, 13, 13, 0.75), rgba(13, 13, 13, 0.75)),
                     url("https://images.unsplash.com/photo-1567157577867-05ccb1388e66?q=80&w=1920&auto=format&fit=crop");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-position: center top;
+        background-size: contain;
+        border-radius: 20px;
+        padding: 2rem !important;
     }
 
     /* Sidebar Background Styling */
     section[data-testid="stSidebar"] {
-        background-color: rgba(15, 15, 15, 0.9) !important;
-        backdrop-filter: blur(5px);
+        background-color: rgba(15, 15, 15, 0.95) !important;
+        backdrop-filter: blur(8px);
+        border-right: 1px solid #333;
     }
 
     /* Text Colors for Dark Background */
@@ -42,15 +51,15 @@ st.markdown(
         color: #FFFFFF !important;
     }
 
-    /* Attractive Header Card */
+    /* Header Card Styling */
     .header-card {
-        background: rgba(0, 0, 0, 0.65);
-        padding: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 25px;
         border-radius: 15px;
         border: 2px solid #FF9800;
-        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-        margin-top: 10px;
+        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.4);
         margin-bottom: 25px;
+        backdrop-filter: blur(5px);
     }
 
     .group-title {
@@ -91,7 +100,7 @@ st.markdown(
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: rgba(0, 0, 0, 0.9);
+        background-color: rgba(0, 0, 0, 0.95);
         color: #ddd;
         text-align: center;
         padding: 8px 0;
@@ -145,10 +154,6 @@ def find_logo():
 
 
 logo_file = find_logo()
-
-# --- ATTRACTIVE GANESHA BANNER ---
-banner_url = "https://images.unsplash.com/photo-1662018868853-29a8a7ca2c5f?q=80&w=1600&auto=format&fit=crop"
-st.image(banner_url, use_container_width=True)
 
 # Header Card Section
 st.markdown('<div class="header-card">', unsafe_allow_html=True)
