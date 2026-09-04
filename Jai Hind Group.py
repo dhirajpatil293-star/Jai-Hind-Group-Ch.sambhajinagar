@@ -12,6 +12,12 @@ st.set_page_config(
     layout="wide",
 )
 
+# -----------------------------------------------------------------------------
+# ADMIN PASSWORD CONFIGURATION
+# -----------------------------------------------------------------------------
+ADMIN_PASSWORD = "jayhind2026"  # Change this to your preferred password
+# -----------------------------------------------------------------------------
+
 # Custom Festival Theme Styling
 st.markdown(
     """
@@ -131,7 +137,7 @@ with col_header:
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<div class="address-text">📍 Bharat Mata Nagar N-12 Hudco Tv centre Ch.sambhajingar</div>',
+        '<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>',
         unsafe_allow_html=True,
     )
 
@@ -167,6 +173,9 @@ if "awards" not in st.session_state:
 if "media" not in st.session_state:
     st.session_state.media = load_data(MEDIA_META_FILE, [])
 
+if "is_admin_logged_in" not in st.session_state:
+    st.session_state.is_admin_logged_in = False
+
 # Sidebar Navigation
 if logo_file:
     st.sidebar.image(str(logo_file), width=130)
@@ -181,7 +190,7 @@ page = st.sidebar.radio(
         "🏠 Gallery (Photos & Videos)",
         "👥 Mandal Committee Members",
         "🏆 Awards & Achievements",
-        "⚙️ Admin Dashboard (Add/Delete Data)",
+        "🔒 Admin Dashboard (Restricted)",
     ],
 )
 
@@ -217,7 +226,7 @@ if page == "🏠 Gallery (Photos & Videos)":
                     st.caption(item["caption"])
     else:
         st.info(
-            "No media uploaded yet. Go to the **Admin Dashboard** tab in the sidebar to upload photos and videos!"
+            "No media uploaded yet. Admin can upload photos and videos via the Admin Dashboard."
         )
 
 # --- PAGE 2: COMMITTEE MEMBERS ---
@@ -242,194 +251,236 @@ elif page == "🏆 Awards & Achievements":
     else:
         st.info("No awards recorded yet.")
 
-# --- PAGE 4: ADMIN DASHBOARD ---
-elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
-    st.header("⚙️ Manage Mandal Data")
+# --- PAGE 4: ADMIN DASHBOARD (PASSWORD PROTECTED) ---
+elif page == "🔒 Admin Dashboard (Restricted)":
+    st.header("🔒 Admin Access Portal")
 
-    tab1, tab2, tab3 = st.tabs(
-        ["👥 Manage Members", "🏆 Manage Awards", "🎬 Upload Media (Photos/Videos)"]
-    )
+    # If not logged in, ask for password
+    if not st.session_state.is_admin_logged_in:
+        st.subheader("🔑 Login Required")
+        password_input = st.text_input("Enter Admin Password", type="password")
 
-    # 1. Manage Members
-    with tab1:
-        col_add, col_del = st.columns(2)
-
-        with col_add:
-            st.subheader("➕ Add Member")
-            m_name = st.text_input("Member Full Name")
-            m_role = st.selectbox(
-                "Role / Designation",
-                [
-                    "President",
-                    "Vice President",
-                    "Secretary",
-                    "Treasurer",
-                    "Committee Member",
-                    "Volunteer",
-                ],
-            )
-            m_contact = st.text_input("Contact Number (Optional)")
-
-            if st.button("Save Member"):
-                if m_name:
-                    st.session_state.members.append(
-                        {"Name": m_name, "Role": m_role, "Contact": m_contact}
-                    )
-                    save_data(MEMBERS_FILE, st.session_state.members)
-                    st.success(f"Member '{m_name}' saved permanently!")
-                    st.rerun()
-                else:
-                    st.error("Please enter the member's name.")
-
-        with col_del:
-            st.subheader("🗑️ Delete Member")
-            if st.session_state.members:
-                member_names = [m["Name"] for m in st.session_state.members]
-                selected_member = st.selectbox(
-                    "Select Member to Delete", member_names
-                )
-
-                if st.button("Delete Selected Member"):
-                    st.session_state.members = [
-                        m
-                        for m in st.session_state.members
-                        if m["Name"] != selected_member
-                    ]
-                    save_data(MEMBERS_FILE, st.session_state.members)
-                    st.success(
-                        f"Member '{selected_member}' deleted successfully!"
-                    )
-                    st.rerun()
+        if st.button("Login as Admin"):
+            if password_input == ADMIN_PASSWORD:
+                st.session_state.is_admin_logged_in = True
+                st.success("Login successful! Access granted.")
+                st.rerun()
             else:
-                st.info("No members available to delete.")
+                st.error("Incorrect password! Access denied.")
+    else:
+        col_title, col_logout = st.columns([4, 1])
+        with col_title:
+            st.subheader("⚙️ Manage Mandal Data")
+        with col_logout:
+            if st.button("Logout Admin"):
+                st.session_state.is_admin_logged_in = False
+                st.rerun()
 
-    # 2. Manage Awards
-    with tab2:
-        col_a_add, col_a_del = st.columns(2)
-
-        with col_a_add:
-            st.subheader("➕ Add Award")
-            a_year = st.text_input("Year", value="2025")
-            a_title = st.text_input("Award Title / Name")
-            a_category = st.text_input("Category / Details")
-
-            if st.button("Save Award"):
-                if a_title:
-                    st.session_state.awards.append(
-                        {
-                            "Year": a_year,
-                            "Award Name": a_title,
-                            "Category": a_category,
-                        }
-                    )
-                    save_data(AWARDS_FILE, st.session_state.awards)
-                    st.success(f"Award '{a_title}' saved permanently!")
-                    st.rerun()
-                else:
-                    st.error("Please enter the award title.")
-
-        with col_a_del:
-            st.subheader("🗑️ Delete Award")
-            if st.session_state.awards:
-                award_titles = [a["Award Name"] for a in st.session_state.awards]
-                selected_award = st.selectbox(
-                    "Select Award to Delete", award_titles
-                )
-
-                if st.button("Delete Selected Award"):
-                    st.session_state.awards = [
-                        a
-                        for a in st.session_state.awards
-                        if a["Award Name"] != selected_award
-                    ]
-                    save_data(AWARDS_FILE, st.session_state.awards)
-                    st.success(
-                        f"Award '{selected_award}' deleted successfully!"
-                    )
-                    st.rerun()
-            else:
-                st.info("No awards available to delete.")
-
-    # 3. Upload Photo / Video
-    with tab3:
-        st.subheader("📸 Upload Photo or 🎥 Video")
-        media_type = st.radio(
-            "Select Media Option:",
-            ["Photo File", "Video File Upload", "YouTube / Video Link"],
-            horizontal=True,
+        tab1, tab2, tab3 = st.tabs(
+            [
+                "👥 Manage Members",
+                "🏆 Manage Awards",
+                "🎬 Upload Media (Photos/Videos)",
+            ]
         )
 
-        if media_type == "Photo File":
-            uploaded_file = st.file_uploader(
-                "Choose an image file", type=["jpg", "jpeg", "png"]
-            )
-            caption = st.text_input("Photo Caption", value="Ganpati Bappa Morya!")
+        # 1. Manage Members
+        with tab1:
+            col_add, col_del = st.columns(2)
 
-            if st.button("Upload Photo"):
-                if uploaded_file is not None:
-                    file_name = uploaded_file.name
-                    save_path = MEDIA_DIR / file_name
+            with col_add:
+                st.subheader("➕ Add Member")
+                m_name = st.text_input("Member Full Name")
+                m_role = st.selectbox(
+                    "Role / Designation",
+                    [
+                        "President",
+                        "Vice President",
+                        "Secretary",
+                        "Treasurer",
+                        "Committee Member",
+                        "Volunteer",
+                    ],
+                )
+                m_contact = st.text_input("Contact Number (Optional)")
 
-                    with open(save_path, "wb") as f:
-                        f.write(uploaded_file.getbuffer())
+                if st.button("Save Member"):
+                    if m_name:
+                        st.session_state.members.append(
+                            {
+                                "Name": m_name,
+                                "Role": m_role,
+                                "Contact": m_contact,
+                            }
+                        )
+                        save_data(MEMBERS_FILE, st.session_state.members)
+                        st.success(f"Member '{m_name}' saved permanently!")
+                        st.rerun()
+                    else:
+                        st.error("Please enter the member's name.")
 
-                    st.session_state.media.append(
-                        {
-                            "type": "photo",
-                            "filename": file_name,
-                            "caption": caption,
-                        }
+            with col_del:
+                st.subheader("🗑️ Delete Member")
+                if st.session_state.members:
+                    member_names = [m["Name"] for m in st.session_state.members]
+                    selected_member = st.selectbox(
+                        "Select Member to Delete", member_names
                     )
-                    save_data(MEDIA_META_FILE, st.session_state.media)
-                    st.success("Photo uploaded successfully!")
-                    st.rerun()
+
+                    if st.button("Delete Selected Member"):
+                        st.session_state.members = [
+                            m
+                            for m in st.session_state.members
+                            if m["Name"] != selected_member
+                        ]
+                        save_data(MEMBERS_FILE, st.session_state.members)
+                        st.success(
+                            f"Member '{selected_member}' deleted successfully!"
+                        )
+                        st.rerun()
                 else:
-                    st.error("Please select an image file first.")
+                    st.info("No members available to delete.")
 
-        elif media_type == "Video File Upload":
-            uploaded_file = st.file_uploader(
-                "Choose a video file (MP4/MOV)", type=["mp4", "mov", "avi", "mkv"]
-            )
-            caption = st.text_input("Video Caption", value="Aarti / Celebration Video")
+        # 2. Manage Awards
+        with tab2:
+            col_a_add, col_a_del = st.columns(2)
 
-            if st.button("Upload Video File"):
-                if uploaded_file is not None:
-                    file_name = uploaded_file.name
-                    save_path = MEDIA_DIR / file_name
+            with col_a_add:
+                st.subheader("➕ Add Award")
+                a_year = st.text_input("Year", value="2025")
+                a_title = st.text_input("Award Title / Name")
+                a_category = st.text_input("Category / Details")
 
-                    with open(save_path, "wb") as f:
-                        f.write(uploaded_file.getbuffer())
+                if st.button("Save Award"):
+                    if a_title:
+                        st.session_state.awards.append(
+                            {
+                                "Year": a_year,
+                                "Award Name": a_title,
+                                "Category": a_category,
+                            }
+                        )
+                        save_data(AWARDS_FILE, st.session_state.awards)
+                        st.success(f"Award '{a_title}' saved permanently!")
+                        st.rerun()
+                    else:
+                        st.error("Please enter the award title.")
 
-                    st.session_state.media.append(
-                        {
-                            "type": "video_file",
-                            "filename": file_name,
-                            "caption": caption,
-                        }
+            with col_a_del:
+                st.subheader("🗑️ Delete Award")
+                if st.session_state.awards:
+                    award_titles = [
+                        a["Award Name"] for a in st.session_state.awards
+                    ]
+                    selected_award = st.selectbox(
+                        "Select Award to Delete", award_titles
                     )
-                    save_data(MEDIA_META_FILE, st.session_state.media)
-                    st.success("Video uploaded successfully!")
-                    st.rerun()
-                else:
-                    st.error("Please select a video file first.")
 
-        elif media_type == "YouTube / Video Link":
-            v_url = st.text_input(
-                "Paste Video URL (YouTube Link / Direct MP4 URL)",
-                placeholder="https://www.youtube.com/watch?v=...",
+                    if st.button("Delete Selected Award"):
+                        st.session_state.awards = [
+                            a
+                            for a in st.session_state.awards
+                            if a["Award Name"] != selected_award
+                        ]
+                        save_data(AWARDS_FILE, st.session_state.awards)
+                        st.success(
+                            f"Award '{selected_award}' deleted successfully!"
+                        )
+                        st.rerun()
+                else:
+                    st.info("No awards available to delete.")
+
+        # 3. Upload Photo / Video
+        with tab3:
+            st.subheader("📸 Upload Photo or 🎥 Video")
+            media_type = st.radio(
+                "Select Media Option:",
+                ["Photo File", "Video File Upload", "YouTube / Video Link"],
+                horizontal=True,
             )
-            caption = st.text_input("Video Caption", value="Mandal Event Video")
 
-            if st.button("Add Video Link"):
-                if v_url:
-                    st.session_state.media.append(
-                        {"type": "video_url", "url": v_url, "caption": caption}
-                    )
-                    save_data(MEDIA_META_FILE, st.session_state.media)
-                    st.success("Video link added successfully!")
-                    st.rerun()
-                else:
-                    st.error("Please enter a video URL.")
+            if media_type == "Photo File":
+                uploaded_file = st.file_uploader(
+                    "Choose an image file", type=["jpg", "jpeg", "png"]
+                )
+                caption = st.text_input(
+                    "Photo Caption", value="Ganpati Bappa Morya!"
+                )
+
+                if st.button("Upload Photo"):
+                    if uploaded_file is not None:
+                        file_name = uploaded_file.name
+                        save_path = MEDIA_DIR / file_name
+
+                        with open(save_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+
+                        st.session_state.media.append(
+                            {
+                                "type": "photo",
+                                "filename": file_name,
+                                "caption": caption,
+                            }
+                        )
+                        save_data(MEDIA_META_FILE, st.session_state.media)
+                        st.success("Photo uploaded successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Please select an image file first.")
+
+            elif media_type == "Video File Upload":
+                uploaded_file = st.file_uploader(
+                    "Choose a video file (MP4/MOV)",
+                    type=["mp4", "mov", "avi", "mkv"],
+                )
+                caption = st.text_input(
+                    "Video Caption", value="Aarti / Celebration Video"
+                )
+
+                if st.button("Upload Video File"):
+                    if uploaded_file is not None:
+                        file_name = uploaded_file.name
+                        save_path = MEDIA_DIR / file_name
+
+                        with open(save_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+
+                        st.session_state.media.append(
+                            {
+                                "type": "video_file",
+                                "filename": file_name,
+                                "caption": caption,
+                            }
+                        )
+                        save_data(MEDIA_META_FILE, st.session_state.media)
+                        st.success("Video uploaded successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Please select a video file first.")
+
+            elif media_type == "YouTube / Video Link":
+                v_url = st.text_input(
+                    "Paste Video URL (YouTube Link / Direct MP4 URL)",
+                    placeholder="https://www.youtube.com/watch?v=...",
+                )
+                caption = st.text_input(
+                    "Video Caption", value="Mandal Event Video"
+                )
+
+                if st.button("Add Video Link"):
+                    if v_url:
+                        st.session_state.media.append(
+                            {
+                                "type": "video_url",
+                                "url": v_url,
+                                "caption": caption,
+                            }
+                        )
+                        save_data(MEDIA_META_FILE, st.session_state.media)
+                        st.success("Video link added successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Please enter a video URL.")
 
 # Developer Branding Footer
 st.markdown(
