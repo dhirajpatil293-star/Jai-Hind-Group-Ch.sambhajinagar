@@ -131,7 +131,7 @@ with col_header:
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<div class="address-text">📍 N-12 Hudco Tv centre Ch.sambhajingar</div>',
+        '<div class="address-text">📍 Bharat Mata Nagar N-12 Hudco Tv centre Ch.sambhajingar</div>',
         unsafe_allow_html=True,
     )
 
