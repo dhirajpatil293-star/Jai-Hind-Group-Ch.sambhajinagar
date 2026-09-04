@@ -1,4 +1,4 @@
-import io
+import json
 import os
 from pathlib import Path
 import pandas as pd
@@ -70,10 +70,33 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Absolute Path Resolver for Image File
+# Set Up File System Persistence Paths
 BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+MEDIA_DIR = DATA_DIR / "uploads"
+
+DATA_DIR.mkdir(exist_ok=True)
+MEDIA_DIR.mkdir(exist_ok=True)
+
+MEMBERS_FILE = DATA_DIR / "members.json"
+AWARDS_FILE = DATA_DIR / "awards.json"
+MEDIA_META_FILE = DATA_DIR / "media.json"
 
 
+# JSON Helper Functions to Save/Load Data
+def load_data(file_path, default_data):
+    if file_path.exists():
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return default_data
+
+
+def save_data(file_path, data):
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+# Find Logo File
 def find_logo():
     extensions = ["logo.png", "logo.jpg", "logo.jpeg", "logo.PNG", "logo.JPG"]
     for ext in extensions:
@@ -85,7 +108,7 @@ def find_logo():
 
 logo_file = find_logo()
 
-# TOP HEADER LAYOUT WITH LOGO ON TOP-LEFT
+# Header Section
 col_logo, col_header = st.columns([1, 4])
 
 with col_logo:
@@ -114,34 +137,35 @@ with col_header:
 
 st.divider()
 
-# Initialize Session State Data Storage
+# Default Initial Data
+default_members = [
+    {"Name": "Dhiraj Patil", "Role": "President", "Contact": "9876543210"},
+    {"Name": "Rahul Sharma", "Role": "Vice President", "Contact": "9876543211"},
+    {"Name": "Amit Deshmukh", "Role": "Secretary", "Contact": "9876543212"},
+]
+
+default_awards = [
+    {
+        "Year": "2024",
+        "Award Name": "Best Eco-Friendly Ganpati",
+        "Category": "City Level 1st Prize",
+    },
+    {
+        "Year": "2023",
+        "Award Name": "Best Social Service Mandal",
+        "Category": "Blood Donation & Relief Campaign",
+    },
+]
+
+# Load Persistent Data directly into Session State
 if "members" not in st.session_state:
-    st.session_state.members = [
-        {"Name": "Dhiraj Patil", "Role": "President", "Contact": "9876543210"},
-        {
-            "Name": "Rahul Sharma",
-            "Role": "Vice President",
-            "Contact": "9876543211",
-        },
-        {"Name": "Amit Deshmukh", "Role": "Secretary", "Contact": "9876543212"},
-    ]
+    st.session_state.members = load_data(MEMBERS_FILE, default_members)
 
 if "awards" not in st.session_state:
-    st.session_state.awards = [
-        {
-            "Year": "2024",
-            "Award Name": "Best Eco-Friendly Ganpati",
-            "Category": "City Level 1st Prize",
-        },
-        {
-            "Year": "2023",
-            "Award Name": "Best Social Service Mandal",
-            "Category": "Blood Donation & Relief Campaign",
-        },
-    ]
+    st.session_state.awards = load_data(AWARDS_FILE, default_awards)
 
 if "media" not in st.session_state:
-    st.session_state.media = []
+    st.session_state.media = load_data(MEDIA_META_FILE, [])
 
 # Sidebar Navigation
 if logo_file:
@@ -164,7 +188,7 @@ page = st.sidebar.radio(
 st.sidebar.divider()
 st.sidebar.caption("💻 Developed by **Dhiraj Patil**")
 
-# --- PAGE 1: PHOTOS & VIDEOS GALLERY ---
+# --- PAGE 1: MEDIA GALLERY ---
 if page == "🏠 Gallery (Photos & Videos)":
     st.header("🎬 Shree Ganpati Bappa Media Gallery")
     st.write(
@@ -174,19 +198,21 @@ if page == "🏠 Gallery (Photos & Videos)":
     if st.session_state.media:
         cols = st.columns(2)
         for idx, item in enumerate(st.session_state.media):
+            media_path = MEDIA_DIR / item["filename"]
             with cols[idx % 2]:
-                if item["type"] == "photo":
-                    st.image(
-                        item["file"],
-                        caption=item["caption"],
-                        use_container_width=True,
-                    )
-                elif item["type"] == "video":
-                    st.video(item["file"])
-                    st.caption(item["caption"])
+                if media_path.exists():
+                    if item["type"] == "photo":
+                        st.image(
+                            str(media_path),
+                            caption=item["caption"],
+                            use_container_width=True,
+                        )
+                    elif item["type"] == "video":
+                        st.video(str(media_path))
+                        st.caption(item["caption"])
     else:
         st.info(
-            "No media uploaded yet. Go to the **Admin Dashboard** tab in the sidebar to upload Bappa photos and videos!"
+            "No media uploaded yet. Go to the **Admin Dashboard** tab in the sidebar to upload photos and videos!"
         )
 
 # --- PAGE 2: COMMITTEE MEMBERS ---
@@ -211,7 +237,7 @@ elif page == "🏆 Awards & Achievements":
     else:
         st.info("No awards recorded yet.")
 
-# --- PAGE 4: ADMIN DASHBOARD (ADD & DELETE) ---
+# --- PAGE 4: ADMIN DASHBOARD ---
 elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
     st.header("⚙️ Manage Mandal Data")
 
@@ -244,7 +270,8 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
                     st.session_state.members.append(
                         {"Name": m_name, "Role": m_role, "Contact": m_contact}
                     )
-                    st.success(f"Member '{m_name}' added successfully!")
+                    save_data(MEMBERS_FILE, st.session_state.members)
+                    st.success(f"Member '{m_name}' saved permanently!")
                     st.rerun()
                 else:
                     st.error("Please enter the member's name.")
@@ -263,6 +290,7 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
                         for m in st.session_state.members
                         if m["Name"] != selected_member
                     ]
+                    save_data(MEMBERS_FILE, st.session_state.members)
                     st.success(
                         f"Member '{selected_member}' deleted successfully!"
                     )
@@ -289,7 +317,8 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
                             "Category": a_category,
                         }
                     )
-                    st.success(f"Award '{a_title}' recorded successfully!")
+                    save_data(AWARDS_FILE, st.session_state.awards)
+                    st.success(f"Award '{a_title}' saved permanently!")
                     st.rerun()
                 else:
                     st.error("Please enter the award title.")
@@ -308,6 +337,7 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
                         for a in st.session_state.awards
                         if a["Award Name"] != selected_award
                     ]
+                    save_data(AWARDS_FILE, st.session_state.awards)
                     st.success(
                         f"Award '{selected_award}' deleted successfully!"
                     )
@@ -325,14 +355,24 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
                 "Choose an image file", type=["jpg", "jpeg", "png"]
             )
             caption = st.text_input("Photo Caption", value="Ganpati Bappa Morya!")
-            
+
             if st.button("Upload Photo"):
                 if uploaded_file is not None:
-                    img = Image.open(uploaded_file)
+                    file_name = uploaded_file.name
+                    save_path = MEDIA_DIR / file_name
+
+                    with open(save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+
                     st.session_state.media.append(
-                        {"type": "photo", "file": img, "caption": caption}
+                        {
+                            "type": "photo",
+                            "filename": file_name,
+                            "caption": caption,
+                        }
                     )
-                    st.success("Photo uploaded successfully!")
+                    save_data(MEDIA_META_FILE, st.session_state.media)
+                    st.success("Photo uploaded and saved permanently!")
                     st.rerun()
                 else:
                     st.error("Please select an image file first.")
@@ -345,10 +385,21 @@ elif page == "⚙️ Admin Dashboard (Add/Delete Data)":
 
             if st.button("Upload Video"):
                 if uploaded_file is not None:
+                    file_name = uploaded_file.name
+                    save_path = MEDIA_DIR / file_name
+
+                    with open(save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+
                     st.session_state.media.append(
-                        {"type": "video", "file": uploaded_file, "caption": caption}
+                        {
+                            "type": "video",
+                            "filename": file_name,
+                            "caption": caption,
+                        }
                     )
-                    st.success("Video uploaded successfully!")
+                    save_data(MEDIA_META_FILE, st.session_state.media)
+                    st.success("Video uploaded and saved permanently!")
                     st.rerun()
                 else:
                     st.error("Please select a video file first.")
