@@ -21,112 +21,96 @@ ADMIN_PASSWORD = "jayhind2026"  # Change this to your preferred password
 
 BASE_DIR = Path(__file__).resolve().parent
 
-
-# Helper function to convert local image to Base64 string for CSS background
-def get_base64_of_bin_file(bin_file):
-    if bin_file.exists():
-        with open(bin_file, "rb") as f:
-            data = f.read()
-        return base64.b64encode(data).decode()
-    return None
-
-
-bg_file = BASE_DIR / "background.png"
-bg_base64 = get_base64_of_bin_file(bg_file)
-
-# If local background image exists, load it; otherwise use a fallback URL
-if bg_base64:
-    bg_style = f"data:image/png;base64,{bg_base64}"
-else:
-    bg_style = "https://images.unsplash.com/photo-1631857455684-a54a2f03665f?q=80&w=1920&auto=format&fit=crop"
-
-# Custom Festival Theme & High-Visibility Ganesha Background
+# Custom Festival Theme & Clean White Background Styling
 st.markdown(
-    f"""
+    """
     <style>
-    /* Full App Background with Ganesha Image */
-    .stApp {{
-        background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
-                    url("{bg_style}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
+    /* Set main app background to solid white */
+    .stApp {
+        background-color: #FFFFFF !important;
+        background-image: none !important;
+    }
 
-    /* Sidebar Background Styling */
-    section[data-testid="stSidebar"] {{
-        background-color: rgba(15, 15, 15, 0.85) !important;
-        backdrop-filter: blur(8px);
-        border-right: 1px solid #444;
-    }}
+    /* Set main container background to white */
+    [data-testid="stMainBlockContainer"] {
+        background-color: #FFFFFF !important;
+        background-image: none !important;
+    }
 
-    /* Text Colors for High Contrast */
-    h1, h2, h3, h4, p, label, .stMarkdown {{
-        color: #FFFFFF !important;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-    }}
-
-    /* Transparent Content Cards to Highlight Ganesha Background */
-    .header-card {{
-        background: rgba(0, 0, 0, 0.55);
+    /* Style the main Header Card for clean contrast on white background */
+    .header-card {
+        background-color: #FAF9F6;
         padding: 25px;
         border-radius: 15px;
-        border: 2px solid #FFD700;
-        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        border: 2px solid #D32F2F;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         margin-bottom: 25px;
-        backdrop-filter: blur(4px);
-    }}
+    }
 
-    .group-title {{
-        color: #FFD700 !important;
+    /* Text Colors Optimized for White Background */
+    .group-title {
+        color: #D32F2F !important;
         font-size: 2rem;
         font-weight: 800;
         margin-bottom: 0px;
         letter-spacing: 1.5px;
-        text-shadow: 2px 2px 4px #000000;
-    }}
-    .main-title {{
-        color: #FF3D00 !important;
+    }
+    .main-title {
+        color: #B71C1C !important;
         font-size: 2.8rem;
         font-weight: 900;
         margin-bottom: 0px;
-        text-shadow: 2px 2px 6px #000000;
-    }}
-    .sub-title {{
-        color: #FFC107 !important;
+    }
+    .sub-title {
+        color: #E65100 !important;
         font-size: 1.3rem;
         font-weight: 700;
         margin-bottom: 5px;
-    }}
-    .address-text {{
-        color: #E0E0E0 !important;
+    }
+    .address-text {
+        color: #424242 !important;
         font-size: 1rem;
-        font-weight: 500;
-    }}
-    .stButton>button {{
+        font-weight: 600;
+    }
+
+    /* Dark Text Defaults for Body Content */
+    h1, h2, h3, h4, p, label, .stMarkdown {
+        color: #212121 !important;
+        text-shadow: none !important;
+    }
+
+    /* Button Styling */
+    .stButton>button {
         background-color: #D32F2F !important;
-        color: white !important;
+        color: #FFFFFF !important;
         font-weight: bold;
         border-radius: 8px;
         border: none;
-    }}
-    .developer-footer {{
+    }
+
+    /* Sidebar Clean Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #F5F5F5 !important;
+        border-right: 1px solid #E0E0E0;
+    }
+
+    /* Footer Styling */
+    .developer-footer {
         position: fixed;
         left: 0;
         bottom: 0;
         width: 100%;
-        background-color: rgba(0, 0, 0, 0.95);
-        color: #ddd;
+        background-color: #212121;
+        color: #FFFFFF;
         text-align: center;
         padding: 8px 0;
         font-size: 14px;
-        border-top: 1px solid #333;
         z-index: 9999;
-    }}
-    .developer-footer span {{
+    }
+    .developer-footer span {
         color: #FFD700;
         font-weight: bold;
-    }}
+    }
     </style>
 """,
     unsafe_allow_html=True,
