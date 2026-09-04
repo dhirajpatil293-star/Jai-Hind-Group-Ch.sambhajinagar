@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 from pathlib import Path
@@ -18,84 +19,98 @@ st.set_page_config(
 ADMIN_PASSWORD = "jayhind2026"  # Change this to your preferred password
 # -----------------------------------------------------------------------------
 
+BASE_DIR = Path(__file__).resolve().parent
+
+
+# Helper function to convert local image to Base64 string for CSS background
+def get_base64_of_bin_file(bin_file):
+    if bin_file.exists():
+        with open(bin_file, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    return None
+
+
+bg_file = BASE_DIR / "background.png"
+bg_base64 = get_base64_of_bin_file(bg_file)
+
+# If local background image exists, load it; otherwise use a fallback URL
+if bg_base64:
+    bg_style = f"data:image/png;base64,{bg_base64}"
+else:
+    bg_style = "https://images.unsplash.com/photo-1631857455684-a54a2f03665f?q=80&w=1920&auto=format&fit=crop"
+
 # Custom Festival Theme & High-Visibility Ganesha Background
 st.markdown(
-    """
+    f"""
     <style>
-    /* Full Page Dark Aesthetic Background */
-    .stApp {
-        background-color: #0d0d0d;
-        background-image: radial-gradient(circle at center, #1a0f00 0%, #050505 100%);
-    }
-
-    /* Centered Screen Background Ganesha Overlay */
-    [data-testid="stMainBlockContainer"] {
-        background-image: linear-gradient(rgba(13, 13, 13, 0.75), rgba(13, 13, 13, 0.75)),
-                    url("https://images.unsplash.com/photo-1567157577867-05ccb1388e66?q=80&w=1920&auto=format&fit=crop");
-        background-repeat: no-repeat;
-        background-position: center top;
-        background-size: contain;
-        border-radius: 20px;
-        padding: 2rem !important;
-    }
+    /* Full App Background with Ganesha Image */
+    .stApp {{
+        background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+                    url("{bg_style}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
 
     /* Sidebar Background Styling */
-    section[data-testid="stSidebar"] {
-        background-color: rgba(15, 15, 15, 0.95) !important;
+    section[data-testid="stSidebar"] {{
+        background-color: rgba(15, 15, 15, 0.85) !important;
         backdrop-filter: blur(8px);
-        border-right: 1px solid #333;
-    }
+        border-right: 1px solid #444;
+    }}
 
-    /* Text Colors for Dark Background */
-    h1, h2, h3, h4, p, label, .stMarkdown {
+    /* Text Colors for High Contrast */
+    h1, h2, h3, h4, p, label, .stMarkdown {{
         color: #FFFFFF !important;
-    }
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    }}
 
-    /* Header Card Styling */
-    .header-card {
-        background: rgba(0, 0, 0, 0.7);
+    /* Transparent Content Cards to Highlight Ganesha Background */
+    .header-card {{
+        background: rgba(0, 0, 0, 0.55);
         padding: 25px;
         border-radius: 15px;
-        border: 2px solid #FF9800;
-        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.4);
+        border: 2px solid #FFD700;
+        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
         margin-bottom: 25px;
-        backdrop-filter: blur(5px);
-    }
+        backdrop-filter: blur(4px);
+    }}
 
-    .group-title {
-        color: #FFB300 !important;
+    .group-title {{
+        color: #FFD700 !important;
         font-size: 2rem;
         font-weight: 800;
         margin-bottom: 0px;
         letter-spacing: 1.5px;
         text-shadow: 2px 2px 4px #000000;
-    }
-    .main-title {
+    }}
+    .main-title {{
         color: #FF3D00 !important;
         font-size: 2.8rem;
         font-weight: 900;
         margin-bottom: 0px;
         text-shadow: 2px 2px 6px #000000;
-    }
-    .sub-title {
+    }}
+    .sub-title {{
         color: #FFC107 !important;
         font-size: 1.3rem;
         font-weight: 700;
         margin-bottom: 5px;
-    }
-    .address-text {
+    }}
+    .address-text {{
         color: #E0E0E0 !important;
         font-size: 1rem;
         font-weight: 500;
-    }
-    .stButton>button {
-        background-color: #E65100 !important;
+    }}
+    .stButton>button {{
+        background-color: #D32F2F !important;
         color: white !important;
         font-weight: bold;
         border-radius: 8px;
         border: none;
-    }
-    .developer-footer {
+    }}
+    .developer-footer {{
         position: fixed;
         left: 0;
         bottom: 0;
@@ -107,18 +122,17 @@ st.markdown(
         font-size: 14px;
         border-top: 1px solid #333;
         z-index: 9999;
-    }
-    .developer-footer span {
-        color: #FF9800;
+    }}
+    .developer-footer span {{
+        color: #FFD700;
         font-weight: bold;
-    }
+    }}
     </style>
 """,
     unsafe_allow_html=True,
 )
 
 # Set Up File System Persistence Paths
-BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 MEDIA_DIR = DATA_DIR / "uploads"
 
